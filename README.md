@@ -133,3 +133,18 @@ Profile → Trust & activity:
 - Previous legacy transactions retain their original confirmation method. New transactions must use the ordered review flow.
 
 Run the SQL migration, replace project files, commit and push to GitHub for Netlify to rebuild. These files are prepared locally; deployment and your actual Google sign-in/upload still require live verification.
+
+## Testing with actual listings (sample records removed)
+
+All hardcoded preview marketplace accounts and forum topics were removed from the UI. No database deletion or SQL migration is needed for this change. Weapon collection images and the inventory catalog remain.
+
+Use three distinct Google accounts in separate browser profiles:
+1. Seller: complete contact profile; choose Seller directly if admin, otherwise request admin approval. Publish a TEST listing and select the inventory.
+2. Buyer: open the listing, click Mine / Buy, and send a chat message. Seller opens Inbox or Sales & transaction desk to reply.
+3. Midman: request and receive Midman approval (or choose directly if admin). Profile → Trust & activity → My activity → Apply as verified Midman. Apply to the TEST listing.
+4. Seller: choose the interested Buyer and Midman applicant, then Start inside transaction.
+5. Buyer: open Transactions, upload a dummy test screenshot, then Submit proof. No real payment is needed to test.
+6. Seller reviews and approves; assigned Midman confirms last. Listing becomes Sold.
+7. To test outside sales, publish a second TEST listing, then use Mark Sold · Outside transaction with a test buyer reference.
+
+One user cannot fill multiple participant roles on the same transaction. Keep Google accounts separate; use names such as TEST Seller, TEST Buyer and TEST Midman to identify the records.
