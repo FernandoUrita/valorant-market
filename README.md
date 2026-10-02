@@ -148,3 +148,7 @@ Use three distinct Google accounts in separate browser profiles:
 7. To test outside sales, publish a second TEST listing, then use Mark Sold · Outside transaction with a test buyer reference.
 
 One user cannot fill multiple participant roles on the same transaction. Keep Google accounts separate; use names such as TEST Seller, TEST Buyer and TEST Midman to identify the records.
+
+## Listing access update
+
+Run `supabase/004-listing-access.sql` after 003, replace project files and push to redeploy. Interested buyers and Midman applicants now appear directly in the account page and summary modal, with seller selection and Reply buttons. Buyers see their own interest and assigned transaction; verified Midmen can apply directly. Candidate names are private to the listing seller. Admin moderation does not expose unrelated private conversations or payment proofs. Buyer navigation now shows Become a seller, and the redundant website inquiry button was removed in favor of Mine/Buy + chat.

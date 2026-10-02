@@ -35,6 +35,7 @@ await as('stranger');assert.equal((await read()).records.filter(r=>r.kind==='inq
 async function chat(action,data={}){return (await db.query('select public.vm_chat($1,$2::jsonb) as d',[action,JSON.stringify(data)])).rows[0].d}
 await db.exec(fs.readFileSync('supabase/002-interest-chat.sql','utf8')); // migration can be re-run
 await db.exec(fs.readFileSync('supabase/003-transactions.sql','utf8'));
+await db.exec(fs.readFileSync('supabase/004-listing-access.sql','utf8'));
 await as('seller');const chatListing=(await write('save-record',{kind:'listing',data:listing})).id;
 await assert.rejects(()=>chat('interest',{listingId:chatListing}));
 await as('buyer');await assert.rejects(()=>chat('interest',{listingId:lid}));
