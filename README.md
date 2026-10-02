@@ -116,3 +116,20 @@ For an existing Supabase database, run only `supabase/002-interest-chat.sql` in 
 - Only participants can read or send messages; suspended members cannot access chats. Demo accounts cannot be purchased.
 
 After replacing the files in your GitHub working folder, commit and push to redeploy. Google login requires your Netlify origin in Google Authorized JavaScript origins and Supabase Site URL, plus `https://YOUR-SITE.netlify.app/auth/callback` in Supabase Redirect URLs.
+
+## Update: ordered transactions and administrator roles
+
+Existing databases: after 002, run `supabase/003-transactions.sql`. New installations can run the latest full `setup.sql`. The migration adds `fernandourita0@gmail.com` as a second administrator and preserves the first administrator.
+
+Profile → Trust & activity:
+- Admin Role approval lets administrators choose Seller or Midman directly, without a pending request. Administrators can publish once contact profile details are complete.
+- Sales & transaction desk lists each seller’s interested buyers and Reply buttons.
+- Verified Midmen can apply to available listings; the seller chooses a distinct interested buyer and Midman applicant to start an inside transaction.
+- Buyer pays externally, uploads PNG/JPG/WebP proof (max 5 MB), and submits for seller review.
+- Seller approves payment proof, then the assigned verified Midman confirms the completed transaction. Seller or Midman can request correction, returning the transaction to the buyer.
+- Completion marks the listing Sold and updates metrics. An outside Sold action instead records a seller-reported outside sale with buyer/reference; it does not claim Midman verification.
+- Proof files are private in Supabase Storage, readable only by assigned participants using short-lived signed links. The screenshot is supporting evidence, not automatic bank/payment validation.
+- Transaction action counts refresh in the header every 10 seconds. Notifications are within the website, not browser push or email.
+- Previous legacy transactions retain their original confirmation method. New transactions must use the ordered review flow.
+
+Run the SQL migration, replace project files, commit and push to GitHub for Netlify to rebuild. These files are prepared locally; deployment and your actual Google sign-in/upload still require live verification.

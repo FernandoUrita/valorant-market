@@ -11,3 +11,4 @@ export async function chatCall(action:string,data:any={}){
  if(error)throw Error(error.code==='PGRST202'?'Chat setup is incomplete. Run supabase/002-interest-chat.sql in Supabase SQL Editor.':error.message);
  return result;
 }
+export async function tradeCall(action:string,data:any={}){const {data:result,error}=await supabase.rpc('vm_trade',{p_action:action,p_data:data});if(error)throw Error(error.code==='PGRST202'?'Transaction setup is incomplete. Run supabase/003-transactions.sql.':error.message);return result;}
