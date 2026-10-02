@@ -152,3 +152,6 @@ One user cannot fill multiple participant roles on the same transaction. Keep Go
 ## Listing access update
 
 Run `supabase/004-listing-access.sql` after 003, replace project files and push to redeploy. Interested buyers and Midman applicants now appear directly in the account page and summary modal, with seller selection and Reply buttons. Buyers see their own interest and assigned transaction; verified Midmen can apply directly. Candidate names are private to the listing seller. Admin moderation does not expose unrelated private conversations or payment proofs. Buyer navigation now shows Become a seller, and the redundant website inquiry button was removed in favor of Mine/Buy + chat.
+
+## Listing cover update
+Existing projects: run supabase/005-listing-covers.sql after 004, then deploy. Listing owners can use Update picture to choose an owned inventory weapon or upload a PNG/JPG/WebP cover up to 5 MB. Covers are public marketplace images. New listings choose a weapon at publish time and can upload a cover after publishing.

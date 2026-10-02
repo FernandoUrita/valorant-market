@@ -66,6 +66,16 @@ await as('seller');assert.equal((await read()).records.find(r=>r.id===chatListin
 const outside=(await write('save-record',{kind:'listing',data:listing})).id;await trade('outside',{listingId:outside,buyerName:'Outside buyer reference'});assert.equal((await read()).records.find(r=>r.id===outside).sold,true);await assert.rejects(()=>trade('outside',{listingId:outside,buyerName:'Again'}));
 await as('buyer');await assert.rejects(()=>chat('interest',{listingId:outside}));
 await db.exec('set role authenticated');assert.equal((await db.query('select * from storage.objects')).rows.length,1);await db.exec('reset role');await as('stranger');await db.exec('set role authenticated');assert.equal((await db.query('select * from storage.objects')).rows.length,0);await assert.rejects(()=>db.query('insert into storage.objects(bucket_id,name) values($1,$2)',['vm-payment-proofs',proofPath]));await db.exec('reset role');
+await as('seller');const coverListing=(await write('save-record',{kind:'listing',data:listing})).id;
+async function cover(id,image){return db.query('select public.vm_update_cover($1,$2)',[id,image])}
+await cover(coverListing,catalog.weapons[0].image);
+await assert.rejects(()=>cover(coverListing,catalog.weapons[1].image));
+await as('stranger');await assert.rejects(()=>cover(coverListing,catalog.weapons[0].image));
+await as('seller');const coverPath=ids.seller+'/'+coverListing+'/00000000-0000-4000-8000-000000000099.png';
+await db.exec('set role authenticated');await db.query('insert into storage.objects(bucket_id,name) values($1,$2)',['vm-listing-covers',coverPath]);await db.exec('reset role');
+await cover(coverListing,'https://msmvmrzfaltsgdpaluyw.supabase.co/storage/v1/object/public/vm-listing-covers/'+coverPath);
+await assert.rejects(()=>cover(outside,catalog.weapons[0].image));
+console.log('PASS: listing cover ownership, selected inventory weapon, upload policy and sold protection.');
 console.log('PASS: admin direct role, verified Midman applications, interested buyer assignment, ordered proof/review/final confirmation, correction cycle, outside sale and private proof policies.');
 console.log('PASS: chat migration, unique interest, unread notifications, replies, sold/self rejection, participant privacy, suspension and RPC permissions.');
 await as('');assert.equal((await read()).user,null);
