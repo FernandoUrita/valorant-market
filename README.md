@@ -102,3 +102,17 @@ Documentation:
 - https://supabase.com/docs/guides/auth/social-login/auth-google
 - https://supabase.com/docs/guides/database/functions
 - https://docs.netlify.com/build/frameworks/framework-setup-guides/vite/
+
+## Update: login, interest, notifications and private chat
+
+For an existing Supabase database, run only `supabase/002-interest-chat.sql` in SQL Editor. New projects can run the full `setup.sql`, which includes chat. Existing data is preserved.
+
+- A visible Log in / Sign up button uses Google Auth; the Inbox also requires login.
+- Mine / Buy creates one conversation per buyer and listing and sends a first interest message.
+- WhatsApp, Facebook, email and Copy message record interest before opening/preparing the external channel. External delivery is not verified; messages are not automatically sent.
+- Sellers see interested buyers, listing title, contact preference and unread notification counts in Inbox. Buyer and seller can reply privately.
+- Inbox refreshes every 10 seconds, active chats every 5 seconds while the tab is visible. This version does not send browser push notifications or emails when the website is closed.
+- Interest is not a reservation, payment or completed sale. Existing buyer/midman transaction confirmation remains available in Profile → Trust & activity. The chat shows the buyer member ID for recording a sale.
+- Only participants can read or send messages; suspended members cannot access chats. Demo accounts cannot be purchased.
+
+After replacing the files in your GitHub working folder, commit and push to redeploy. Google login requires your Netlify origin in Google Authorized JavaScript origins and Supabase Site URL, plus `https://YOUR-SITE.netlify.app/auth/callback` in Supabase Redirect URLs.

@@ -31,6 +31,24 @@ await as('seller');assert.equal((await read()).user.suspended,true);await assert
 await db.query("update vm.members set suspended_until=now()-interval '1 second' where id=$1",[ids.seller]);assert.equal((await read()).user.credits,25);assert.equal((await read()).user.suspended,undefined);
 await as('buyer');await write('save-record',{kind:'inquiry',data:{listingId:lid,sellerId:ids.stranger,message:'Hello seller'}});const inquiries=(await read()).records.filter(r=>r.kind==='inquiry');assert.equal(inquiries[0].sellerId,ids.seller);
 await as('stranger');assert.equal((await read()).records.filter(r=>r.kind==='inquiry').length,0);
+async function chat(action,data={}){return (await db.query('select public.vm_chat($1,$2::jsonb) as d',[action,JSON.stringify(data)])).rows[0].d}
+await db.exec(fs.readFileSync('supabase/002-interest-chat.sql','utf8')); // migration can be re-run
+await as('seller');const chatListing=(await write('save-record',{kind:'listing',data:listing})).id;
+await assert.rejects(()=>chat('interest',{listingId:chatListing}));
+await as('buyer');await assert.rejects(()=>chat('interest',{listingId:lid}));
+const first=await chat('interest',{listingId:chatListing,channel:'whatsapp'});assert.equal(first.created,true);
+const again=await chat('interest',{listingId:chatListing,channel:'copy'});assert.equal(again.threadId,first.threadId);assert.equal(again.created,false);
+assert.equal((await chat('messages',{threadId:first.threadId})).messages.length,1);
+await as('seller');let inbox=await chat('inbox');assert.equal(inbox.threads[0].unread,1);assert.equal(inbox.threads[0].buyer,ids.buyer);assert.equal(inbox.threads[0].channel,'copy');
+const shown=(await chat('messages',{threadId:first.threadId})).messages;
+await chat('seen',{threadId:first.threadId,lastId:shown.at(-1).id});assert.equal((await chat('inbox')).threads[0].unread,0);
+await chat('send',{threadId:first.threadId,body:'Yes, still available.'});
+await as('buyer');assert.equal((await chat('inbox')).threads[0].unread,1);
+await as('stranger');assert.equal((await chat('inbox')).threads.length,0);await assert.rejects(()=>chat('messages',{threadId:first.threadId}));await assert.rejects(()=>chat('send',{threadId:first.threadId,body:'Unauthorized'}));await assert.rejects(()=>chat('seen',{threadId:first.threadId,lastId:999999}));
+await db.query("update vm.members set suspended_until=now()+interval '1 day' where id=$1",[ids.buyer]);await as('buyer');await assert.rejects(()=>chat('inbox'));await assert.rejects(()=>chat('send',{threadId:first.threadId,body:'Suspended'}));await db.query('update vm.members set suspended_until=null where id=$1',[ids.buyer]);
+await as('');await db.exec('set role anon');await assert.rejects(()=>chat('inbox'));await db.exec('reset role');
+await as('buyer');await db.exec('set role authenticated');assert.equal((await chat('inbox')).threads.length,1);await assert.rejects(()=>db.query('select * from vm.messages'));await db.exec('reset role');
+console.log('PASS: chat migration, unique interest, unread notifications, replies, sold/self rejection, participant privacy, suspension and RPC permissions.');
 await as('');assert.equal((await read()).user,null);
 await db.exec('set role anon');await assert.rejects(()=>db.query('select * from vm.members'));await assert.rejects(()=>write('request-role',{role:'seller',details:'Untrusted request'}));await read();await db.exec('reset role');
 console.log('PASS: schema, inventory, roles, admin authorization, transaction confirmation, null-midman ownership, credits, report idempotency, suspension/recovery, private inquiries, anonymous access restrictions.');await db.close();
